@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 
 
@@ -19,3 +19,4 @@ class UserUpdateSchema(BaseModel):
     password: Optional[str] = None
 
 class UserListPublicSchema(BaseModel):
+    users: List[UserPublicSchema]
