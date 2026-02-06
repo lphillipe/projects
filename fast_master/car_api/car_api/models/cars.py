@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import func 
 from sqlalchemy import ForeignKey, String, Text, Numeric, Integer
@@ -38,6 +38,13 @@ class Brand(Base):
         onupdate=func.now(), server_default=func.now(),
     )
 
+    cars: Mapped[List['Car']] = relationship(
+        'Car',
+        back_populates='brand',
+    )
+
+
+
 class Car(Base):
     __tablename__= 'cars'
 
@@ -66,5 +73,15 @@ class Car(Base):
     created_at: Mapped[str] = mapped_column(server_default=func.now())
     update_at: Mapped[str] = mapped_column(
         onupdate=func.now(), server_default=func.now(),
+    )
+
+    brand: Mapped['Brand'] = relationship (
+        'Brand',
+        back_populates='cars',
+    )
+
+    owner: Mapped['User'] = relationship (
+        'User',
+        back_populates='cars',
     )
     
