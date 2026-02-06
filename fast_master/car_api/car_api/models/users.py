@@ -1,10 +1,13 @@
 from datetime import datetime
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import func 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from car_api.models import Base
+
+if TYPE_CHECKING:
+    from car_api.models import Car
 
 class User(Base):
     __tablename__ = 'users'
