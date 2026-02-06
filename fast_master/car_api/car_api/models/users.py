@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import func 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from car_api.models import Base
 
@@ -17,4 +18,8 @@ class User(Base):
     )
     created_at: Mapped[str] = mapped_column(
         server_default=func.now(),
+    )
+
+    cars: Mapped[List['Car']] = relationship(
+        back_populates='owner',
     )
