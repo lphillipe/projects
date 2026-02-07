@@ -16,7 +16,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
-    update_at: Mapped[str] = mapped_column(
+    updated_at: Mapped[str] = mapped_column(
         onupdate=func.now(), server_default=func.now(),
     )
     created_at: Mapped[str] = mapped_column(
