@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, status, HTTPException, Query, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, exists
 
@@ -63,16 +63,18 @@ async def create_user(
     summary='Listar usuários',
 )
 async def list_users(
+    offset: int = Query(0, ge=0, description='Número de registros para pular'),
+    limit: int = Query(100, ge=1, le=100, description='Limite de registros'),
     db: AsyncSession = Depends(get_session),
 ):
     query = select(User)
 
+    query = query.offset(offset).limit(limit)
+
     result = await db.execute(query)
     users = result.scalars().all()
     
-    return { 
-        'users': users 
-    }
+    return { 'users': users, 'offset': offset, 'limit': limit }
 
 @router.get(
         path='/{user_id}',
