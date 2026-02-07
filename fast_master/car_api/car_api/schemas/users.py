@@ -23,7 +23,7 @@ class UserPublicSchema(BaseModel):
     username: str
     email: EmailStr
     created_at: datetime
-    updated_at: datetime
+    update_at: datetime
 
 
 class UserListPublicSchema(BaseModel):
