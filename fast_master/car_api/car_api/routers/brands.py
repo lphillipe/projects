@@ -1,9 +1,9 @@
 from fastapi import APIRouter,status, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, exists
+from sqlalchemy import select, exists, func
 
 from car_api.core.database import get_session
-from car_api.models.cars import Brand
+from car_api.models.cars import Brand, Car
 from car_api.schemas.brands import (
     BrandSchema,
     BrandPublicSchema,
@@ -43,3 +43,35 @@ async def create_brand(
     await db.refresh(db_brand)
 
     return db_brand
+
+@router.delete(
+    path='/{brand_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Deletar marca',
+)
+async def delete_brand(
+        brand_id: int,
+        db: AsyncSession = Depends(get_session),
+):
+    brand = await db.get(Brand, brand_id)
+
+    if not brand:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Marca não encontrada',
+        )
+    
+    cars_count = await db.scalar(
+        select(func.count()).select_from(Car).where(Car.brand_id == brand_id))
+    )
+    if cars_count > 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Não é possível deletar marca que possui carros associados',
+        )
+
+
+    await db.delete(brand)
+    await db.commit()
+
+    return
