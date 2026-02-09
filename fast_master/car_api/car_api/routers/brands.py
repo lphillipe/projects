@@ -62,7 +62,7 @@ async def delete_brand(
         )
     
     cars_count = await db.scalar(
-        select(func.count()).select_from(Car).where(Car.brand_id == brand_id))
+        select(func.count()).select_from(Car).where(Car.brand_id == brand_id)
     )
     if cars_count > 0:
         raise HTTPException(
