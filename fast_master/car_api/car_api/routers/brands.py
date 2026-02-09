@@ -1,5 +1,6 @@
-from fastapi import APIRouter,status, Depends
+from fastapi import APIRouter,status, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, exists
 
 from car_api.core.database import get_session
 from car_api.models.cars import Brand
@@ -21,6 +22,16 @@ async def create_brand(
     brand: BrandSchema,
     db: AsyncSession = Depends(get_session),
 ):
+    name_exists = await db.scalar(
+        select(exists().where(Brand.name == brand.name))
+    )
+
+    if name_exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Nome da marca já está em uso',
+        )
+    
     db_brand = Brand(
         name=brand.name,
         description=brand.description,
