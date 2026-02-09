@@ -1,4 +1,6 @@
-from fastapi import APIRouter,status, HTTPException, Depends
+from typing import Optional
+
+from fastapi import APIRouter,status, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, exists, func
 
@@ -7,6 +9,7 @@ from car_api.models.cars import Brand, Car
 from car_api.schemas.brands import (
     BrandSchema,
     BrandPublicSchema,
+    BrandListPublicSchema,
 )
 
 router = APIRouter()
@@ -43,6 +46,61 @@ async def create_brand(
     await db.refresh(db_brand)
 
     return db_brand
+
+@router.get(
+    path='/',
+    status_code=status.HTTP_200_OK,
+    response_model=BrandListPublicSchema,
+    summary='Listar marcas',
+)
+async def list_brands(
+    offset: int = Query(0, ge=0, description='Número de registros para pular'),
+    limit: int = Query(100, ge=1, le=100, description='Limite de registros'),
+    search: Optional[str] = Query(None, description='Buscar por nome da marca'),
+    is_active: Optional[bool] = Query(None, description='Filtrar por marcas ativas'),
+    db: AsyncSession = Depends(get_session),
+):
+    query = select(Brand)
+
+    if search:
+        search_filter = f'%{search}%'
+        query = query.where(Brand.name.ilike(search_filter))
+
+    if is_active is not None:
+        query = query.where(Brand.is_active == is_active)
+
+    query = query.offset(offset).limit(limit)
+
+    result = await db.execute(query)
+    brands = result.scalars().all()
+
+    return {
+        'brands': brands,
+        'offset': offset,
+        'limit': limit,
+    }
+
+
+@router.get(
+        path='/{brand_id}',
+        status_code=status.HTTP_200_OK,
+        response_model=BrandPublicSchema,
+        summary='Buscar marca por ID',
+)
+async def get_brand(
+    brand_id: int,
+    db: AsyncSession = Depends(get_session),
+):
+    brand = await db.get(Brand, brand_id)
+
+    if not brand:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Marca não encontrada',
+        )
+    
+    return brand
+
 
 @router.delete(
     path='/{brand_id}',
