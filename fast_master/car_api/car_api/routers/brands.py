@@ -10,6 +10,7 @@ from car_api.schemas.brands import (
     BrandSchema,
     BrandPublicSchema,
     BrandListPublicSchema,
+    BrandUpdateSchema,
 )
 
 router = APIRouter()
@@ -82,10 +83,10 @@ async def list_brands(
 
 
 @router.get(
-        path='/{brand_id}',
-        status_code=status.HTTP_200_OK,
-        response_model=BrandPublicSchema,
-        summary='Buscar marca por ID',
+    path='/{brand_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=BrandPublicSchema,
+    summary='Buscar marca por ID',
 )
 async def get_brand(
     brand_id: int,
@@ -99,6 +100,48 @@ async def get_brand(
             detail='Marca não encontrada',
         )
     
+    return brand
+
+@router.put(
+    path='/{brand_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=BrandPublicSchema,
+    summary='Atualizar marca',
+)
+async def update_brand(
+    brand_id: int,
+    brand_update: BrandUpdateSchema,
+    db: AsyncSession = Depends(get_session),
+):
+    brand = await db.get(Brand, brand_id)
+
+    if not brand:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Marca não encontrada",
+        )
+    
+    update_data = brand_update.model_dump(exclude_unset=True)
+
+    if 'name' in update_data and update_data['name'] != brand.name:
+        name_exists = await db.scalar(
+            select(exists().where(
+                (Brand.name == update_data['name']) &
+                (Brand.id != brand_id)
+            ))
+        )
+        if name_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Nome da marca já está em uso'
+            )
+
+    for field, value in update_data.items():
+        setattr(brand, field, value)
+
+    await db.commit()
+    await db.refresh(brand)
+
     return brand
 
 
