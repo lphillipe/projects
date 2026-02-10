@@ -34,7 +34,7 @@ async def create_car(
         )
     
     brand_exists = await db.scalar(
-        select(exists().where(Brand.id == car.brand.id))
+        select(exists().where(Brand.id == car.brand_id))
     )
     if not brand_exists:
         raise HTTPException(
@@ -43,7 +43,7 @@ async def create_car(
         )
     
     owner_exists = await db.scalar(
-        select(exists().where(User.id == car.owner.id))
+        select(exists().where(User.id == car.owner_id))
     )
     if not owner_exists:
         raise HTTPException(
