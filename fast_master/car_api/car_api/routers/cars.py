@@ -106,7 +106,7 @@ async def list_cars(
 @router.get(
     path='/',
     status_code=status.HTTP_200_OK,
-    response_model= CarPublicSchema,
+    response_model=CarPublicSchema,
     summary='Buscar carro por ID',
 )
 async def get_car(
