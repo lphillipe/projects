@@ -77,3 +77,25 @@ async def create_car(
     car_with_relations = result.scalar_one()
 
     return car_with_relations
+
+@router.delete(
+    path='/{car_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Deletar carro',
+)
+async def delete_car(
+        car_id: int,
+        db: AsyncSession = Depends(get_session),
+):
+    car = await db.ge(Car, car_id)
+
+    if not car:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Carro não encontrado',
+        )
+    
+    await db.delete(car)
+    await db.commit()
+
+    return 
