@@ -78,6 +78,31 @@ async def create_car(
 
     return car_with_relations
 
+@router.get(
+    path='/',
+    status_code=status.HTTP_200_OK,
+    response_model= CarPublicSchema,
+    summary='Buscar carro por ID',
+)
+async def get_car(
+    car_id: int,
+    db: AsyncSession = Depends(get_session),
+):
+    result = await db.execute(
+        select(Car)
+        .options(selectinload(Car.brand), selectinload(Car.owner))
+        .where(Car.id == car_id)
+    )
+    car = result.scalar_one_or_none()
+
+    if not car:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Carro não encontrado'
+        )
+    
+    return car
+
 @router.delete(
     path='/{car_id}',
     status_code=status.HTTP_204_NO_CONTENT,
