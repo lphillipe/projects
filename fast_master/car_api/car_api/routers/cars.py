@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, exists, func
 from sqlalchemy.orm import selectinload
@@ -9,6 +9,7 @@ from car_api.models.users import User
 from car_api.schemas.cars import (
     CarSchema,
     CarPublicSchema,
+    CarListPublicSchema,
 )
 
 router = APIRouter()
@@ -77,6 +78,30 @@ async def create_car(
     car_with_relations = result.scalar_one()
 
     return car_with_relations
+
+@router.get(
+    path='/',
+    status_code=status.HTTP_200_OK,
+    response_model=CarListPublicSchema,
+    summary='Listar carros',
+)
+async def list_cars(
+    offset: int = Query(0, ge=0, description='Número de registros para pular'),
+    limit: int = Query(100, ge=1, le=100, description='Limite de registros'),
+    db: AsyncSession = Depends(get_session),
+):
+    query = select(Car).options(selectinload(Car.brand), selectinload(Car.owner))
+
+    query = query.offset(offset).limit(limit)
+
+    result = await db.execute(query)
+    cars = result.scalars().all()
+
+    return {
+        'cars': cars,
+        'offset': offset,
+        'limit': limit,
+    }
 
 @router.get(
     path='/',
