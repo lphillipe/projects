@@ -221,6 +221,7 @@ async def update_car(
         if not owner_exists:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Proprietario não encontrado',
             )
     
     for field, value in update_data.items():
