@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 
 import jwt
+from fastapi import HTTPException, status
 from pwdlib import PasswordHash
 
 
@@ -29,3 +30,22 @@ def create_access_token(data: Dict) -> str:
     )
 
     return encoded_jwt
+
+def verify_token(token: str) -> Dict:
+    try:
+        payload = jwt.decode(
+            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+        )
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Token has expired'
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Could not validate credentials',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
