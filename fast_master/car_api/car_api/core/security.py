@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 
 import jwt
-from fastapi import HTTPException, status, Depends
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pwdlib import PasswordHash
 from sqlalchemy import select
@@ -16,8 +16,10 @@ pwd_context = PasswordHash.recommended()
 security = HTTPBearer()
 settings = Settings()
 
+
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
@@ -35,6 +37,7 @@ def create_access_token(data: Dict) -> str:
     )
 
     return encoded_jwt
+
 
 def verify_token(token: str) -> Dict:
     try:
@@ -54,7 +57,8 @@ def verify_token(token: str) -> Dict:
             detail='Could not validate credentials',
             headers={'WWW-Authenticate': 'Bearer'},
         )
-    
+
+
 async def authenticate_user(
     email: str, password: str, db: AsyncSession
 ) -> Optional[User]:
@@ -63,11 +67,12 @@ async def authenticate_user(
 
     if not user:
         return None
-    
+
     if not verify_password(password, user.password):
         return None
-    
+
     return user
+
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -82,7 +87,7 @@ async def get_current_user(
             detail='Could not validate credentials',
             headers={'WWW-Authenticate': 'Bearer'},
         )
-    
+
     try:
         user_id = int(user_id_str)
     except (ValueError, TypeError):
@@ -91,7 +96,7 @@ async def get_current_user(
             detail='Could not validate credentials',
             headers={'WWW-Authenticate': 'Bearer'},
         )
-    
+
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
 
@@ -101,8 +106,9 @@ async def get_current_user(
             detail='Could not validate credentials',
             headers={'WWW-Authenticate': 'Bearer'},
         )
-    
+
     return user
+
 
 def verify_car_ownership(user: User, car_owner_id: int) -> None:
     if user.id != car_owner_id:
@@ -110,4 +116,3 @@ def verify_car_ownership(user: User, car_owner_id: int) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Not enough permissions to access this car',
         )
-

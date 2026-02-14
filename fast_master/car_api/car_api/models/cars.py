@@ -1,10 +1,8 @@
-from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import func 
-from sqlalchemy import ForeignKey, String, Text, Numeric, Integer
+from sqlalchemy import ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from car_api.models import Base
@@ -28,17 +26,19 @@ class TransmissionType(str, Enum):
     SEMI_AUTOMATIC = 'semi_automatic'
     CVT = 'cvt'
 
+
 class Brand(Base):
-    __tablename__= 'brands'
+    __tablename__ = 'brands'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String[50], unique=True)
     is_active: Mapped[bool] = mapped_column(default=True)
     description: Mapped[Optional[str]] = mapped_column(Text, default=None)
-    
+
     created_at: Mapped[str] = mapped_column(server_default=func.now())
     update_at: Mapped[str] = mapped_column(
-        onupdate=func.now(), server_default=func.now(),
+        onupdate=func.now(),
+        server_default=func.now(),
     )
 
     cars: Mapped[List['Car']] = relationship(
@@ -47,9 +47,8 @@ class Brand(Base):
     )
 
 
-
 class Car(Base):
-    __tablename__= 'cars'
+    __tablename__ = 'cars'
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -75,16 +74,16 @@ class Car(Base):
 
     created_at: Mapped[str] = mapped_column(server_default=func.now())
     update_at: Mapped[str] = mapped_column(
-        onupdate=func.now(), server_default=func.now(),
+        onupdate=func.now(),
+        server_default=func.now(),
     )
 
-    brand: Mapped['Brand'] = relationship (
+    brand: Mapped['Brand'] = relationship(
         'Brand',
         back_populates='cars',
     )
 
-    owner: Mapped['User'] = relationship (
+    owner: Mapped['User'] = relationship(
         'User',
         back_populates='cars',
     )
-    

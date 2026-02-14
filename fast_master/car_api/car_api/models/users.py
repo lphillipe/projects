@@ -1,13 +1,13 @@
-from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import func 
+from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from car_api.models import Base
 
 if TYPE_CHECKING:
     from car_api.models import Car
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -17,7 +17,8 @@ class User(Base):
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     update_at: Mapped[str] = mapped_column(
-        onupdate=func.now(), server_default=func.now(),
+        onupdate=func.now(),
+        server_default=func.now(),
     )
     created_at: Mapped[str] = mapped_column(
         server_default=func.now(),

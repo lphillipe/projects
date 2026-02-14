@@ -1,21 +1,22 @@
 from typing import Optional
 
-from fastapi import APIRouter,status, HTTPException, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, exists, func
 
 from car_api.core.database import get_session
 from car_api.core.security import get_current_user
 from car_api.models.cars import Brand, Car
 from car_api.models.users import User
 from car_api.schemas.brands import (
-    BrandSchema,
-    BrandPublicSchema,
     BrandListPublicSchema,
+    BrandPublicSchema,
+    BrandSchema,
     BrandUpdateSchema,
 )
 
 router = APIRouter()
+
 
 @router.post(
     path='/',
@@ -23,7 +24,6 @@ router = APIRouter()
     response_model=BrandPublicSchema,
     summary='Criar nova marca',
 )
-
 async def create_brand(
     brand: BrandSchema,
     current_user: User = Depends(get_current_user),
@@ -38,7 +38,7 @@ async def create_brand(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Nome da marca já está em uso',
         )
-    
+
     db_brand = Brand(
         name=brand.name,
         description=brand.description,
@@ -51,6 +51,7 @@ async def create_brand(
 
     return db_brand
 
+
 @router.get(
     path='/',
     status_code=status.HTTP_200_OK,
@@ -60,8 +61,12 @@ async def create_brand(
 async def list_brands(
     offset: int = Query(0, ge=0, description='Número de registros para pular'),
     limit: int = Query(100, ge=1, le=100, description='Limite de registros'),
-    search: Optional[str] = Query(None, description='Buscar por nome da marca'),
-    is_active: Optional[bool] = Query(None, description='Filtrar por marcas ativas'),
+    search: Optional[str] = Query(
+        None, description='Buscar por nome da marca'
+    ),
+    is_active: Optional[bool] = Query(
+        None, description='Filtrar por marcas ativas'
+    ),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
@@ -104,8 +109,9 @@ async def get_brand(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Marca não encontrada',
         )
-    
+
     return brand
+
 
 @router.put(
     path='/{brand_id}',
@@ -124,22 +130,24 @@ async def update_brand(
     if not brand:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Marca não encontrada",
+            detail='Marca não encontrada',
         )
-    
+
     update_data = brand_update.model_dump(exclude_unset=True)
 
     if 'name' in update_data and update_data['name'] != brand.name:
         name_exists = await db.scalar(
-            select(exists().where(
-                (Brand.name == update_data['name']) &
-                (Brand.id != brand_id)
-            ))
+            select(
+                exists().where(
+                    (Brand.name == update_data['name'])
+                    & (Brand.id != brand_id)
+                )
+            )
         )
         if name_exists:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Nome da marca já está em uso'
+                detail='Nome da marca já está em uso',
             )
 
     for field, value in update_data.items():
@@ -157,9 +165,9 @@ async def update_brand(
     summary='Deletar marca',
 )
 async def delete_brand(
-        brand_id: int,
-        current_user: User = Depends(get_current_user),
-        db: AsyncSession = Depends(get_session),
+    brand_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_session),
 ):
     brand = await db.get(Brand, brand_id)
 
@@ -168,7 +176,7 @@ async def delete_brand(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Marca não encontrada',
         )
-    
+
     cars_count = await db.scalar(
         select(func.count()).select_from(Car).where(Car.brand_id == brand_id)
     )
@@ -178,8 +186,5 @@ async def delete_brand(
             detail='Não é possível deletar marca que possui carros associados',
         )
 
-
     await db.delete(brand)
     await db.commit()
-
-    return

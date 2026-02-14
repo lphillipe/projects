@@ -1,7 +1,8 @@
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator
+
 
 class BrandSchema(BaseModel):
     name: str
@@ -13,7 +14,7 @@ class BrandSchema(BaseModel):
         if len(v.strip()) < 2:
             raise ValueError('Nome da marca deve ter pelo menos 2 caracteres')
         return v.strip()
-    
+
 
 class BrandUpdateSchema(BaseModel):
     name: Optional[str] = None
@@ -25,16 +26,18 @@ class BrandUpdateSchema(BaseModel):
         if len(v.strip()) < 2:
             raise ValueError('Nome da marca deve ter pelo menos 2 caracteres')
         return v.strip()
-    
+
+
 class BrandPublicSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: int
     name: str
     description: Optional[str]
     is_active: bool
     created_at: datetime
     update_at: datetime
+
 
 class BrandListPublicSchema(BaseModel):
     brands: List[BrandPublicSchema]

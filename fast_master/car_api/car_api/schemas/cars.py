@@ -1,8 +1,8 @@
-from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
-from pydantic import BaseModel, ConfigDict, field_validator
+from typing import List, Optional
 
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from car_api.models.cars import FuelType, TransmissionType
 from car_api.schemas.brands import BrandPublicSchema
@@ -22,37 +22,38 @@ class CarSchema(BaseModel):
     is_available: bool = True
     brand_id: int
     owner_id: int
-    
+
     @field_validator('model')
     def model_min_lenght(cls, v):
         if len(v.strip()) < 2:
             raise ValueError('Modelo deve ter pelo menos 2 caracteres')
         return v.strip()
-    
+
     @field_validator('color')
     def color_min_lenght(cls, v):
         if len(v.strip()) < 2:
             raise ValueError('Cor deve ter pelo menos 2 caracteres')
         return v.strip()
-    
+
     @field_validator('plate')
     def plate_min_lenght(cls, v):
         plate = v.strip().upper()
         if len(plate) < 7 or len(plate) > 10:
             raise ValueError('Placa deve ter entre 7 e 10 caracteres')
         return plate
-    
+
     @field_validator('factory_year', 'model_year')
     def year_validaton(cls, v):
         if v < 1900 or v > 2030:
             raise ValueError('Ano deve estar entre 1900 e 2030')
         return v
-    
+
     @field_validator('price')
     def price_validation(cls, v):
         if v <= 0:
             raise ValueError('Preço deve ser maior do que zero')
         return v
+
 
 class CarUpdateSchema(BaseModel):
     model: Optional[str] = None
@@ -73,35 +74,36 @@ class CarUpdateSchema(BaseModel):
         if len(v.strip()) < 2:
             raise ValueError('Modelo deve ter pelo menos 2 caracteres')
         return v.strip()
-    
+
     @field_validator('color')
     def color_min_lenght(cls, v):
         if len(v.strip()) < 2:
             raise ValueError('Cor deve ter pelo menos 2 caracteres')
         return v.strip()
-    
+
     @field_validator('plate')
     def plate_min_lenght(cls, v):
         plate = v.strip().upper()
         if len(plate) < 7 or len(plate) > 10:
             raise ValueError('Placa deve ter entre 7 e 10 caracteres')
         return plate
-    
+
     @field_validator('factory_year', 'model_year')
     def year_validaton(cls, v):
         if v < 1900 or v > 2030:
             raise ValueError('Ano deve estar entre 1900 e 2030')
         return v
-    
+
     @field_validator('price')
     def price_validation(cls, v):
         if v <= 0:
             raise ValueError('Preço deve ser maior do que zero')
         return v
 
+
 class CarPublicSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: int
     model: str
     factory_year: int
@@ -116,9 +118,10 @@ class CarPublicSchema(BaseModel):
     brand_id: int
     owner_id: int
     created_at: datetime
-    update_at: datetime 
+    update_at: datetime
     brand: BrandPublicSchema
     owner: UserPublicSchema
+
 
 class CarListPublicSchema(BaseModel):
     cars: List[CarPublicSchema]

@@ -7,12 +7,11 @@ from car_api.core.security import (
     create_access_token,
     get_current_user,
 )
-
 from car_api.models.users import User
 from car_api.schemas.auth import LoginRequest, Token
 
-
 router = APIRouter()
+
 
 @router.post(
     '/token',
@@ -35,6 +34,7 @@ async def token(
     access_token = create_access_token(data={'sub': str(user.id)})
 
     return {'access_token': access_token, 'token_type': 'bearer'}
+
 
 @router.post(
     '/refresh_token',
