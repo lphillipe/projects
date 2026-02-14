@@ -13,6 +13,6 @@ plugins:
 
 markdown_extensions:
   - pymdownx.superfences:
-    custom_fences:
-      - name: mermaid
-        class: mermaid
+      custom_fences:
+        - name: mermaid
+          class: mermaid
