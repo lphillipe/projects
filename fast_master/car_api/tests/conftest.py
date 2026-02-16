@@ -32,3 +32,16 @@ def client(session):
         yield client
 
     app.dependency_overrides.clear()
+
+@pytest_asyncio.fixture
+async def user_data():
+    return {
+        'username': 'testuser',
+        'email': 'test@example.com'
+        'password': 'secret123',
+    }
+
+
+@pytest_asyncio.fixture
+async def user(session, user_data):
+    pass
