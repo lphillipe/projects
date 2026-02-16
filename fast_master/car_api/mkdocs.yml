@@ -10,6 +10,23 @@ theme:
 plugins:
   - search
 
+nav:
+  - Início: index.md
+  - Visão geral: overview.md
+  - Pré-requisitos: prerequisites.md
+  - Instalação: installation.md
+  - Configuração: configuration.md
+  - Guidelines e padrões: guidelines.md
+  - Estrutura: structure.md
+  - API Endpoints: api-endpoints.md
+  - Modelagem do Sistema: system-modeling.md
+  - Autenticação e segurança: authentication.md
+  - Desenvolvimento: development.md
+  - Testes: testing.md
+  - Deploy: deployment.md
+  - Contribuição: contributing.md
+  - Release Notes: release-notes.md
+
 
 markdown_extensions:
   - pymdownx.superfences:
