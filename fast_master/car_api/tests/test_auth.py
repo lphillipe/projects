@@ -1,5 +1,5 @@
 from http import HTTPStatus
-import pytest
+
 
 def test_token_success(client, user, user_data):
     login_data = {
