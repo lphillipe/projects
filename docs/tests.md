@@ -251,4 +251,4 @@ A suite de testes inclui verificações de segurança:
 
 - [Documentação do Pytest](https://docs.pytest.org/)
 - [FastAPI Testing Guide](https://fastapi.tiangolo.com/tutorial/testing/)
-- [Testing SQLAlchemy with pytest](https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html#testing-with-transactions-and-connection-faq-test)
+- [Testing SQLAlchemy with pytest](https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html#testing-with-transactions-and-connection-faq-test) teste
