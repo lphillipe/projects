@@ -1,14 +1,14 @@
 FROM python:3.13.11-alpine3.22
 
 SHELL ["/bin/sh", "-o", "pipefail", "-c"]
-ARG POETRY_VERSION=2.3.2
+ENV POETRY_VERSION=2.3.2 \
+    PATH="/root/.local/bin:$PATH"
 
 RUN apk add curl && \
-    curl -sSL https://install.python-poetry.org | POETRY_VERSION=${POETRY_VERSION} python3 -
-
-ENV PATH="/root/.local/bin:$PATH"
+    curl -sSL https://install.python-poetry.org | python3 -
 
 WORKDIR /app
+
 COPY . .
 RUN poetry install --without dev
 
