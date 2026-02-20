@@ -1,0 +1,5 @@
+FROM python:3.13.11-alpine3.22
+
+COPY requirements_docs.txt .
+
+RUN pip install --requirements requirements_docs.txt
