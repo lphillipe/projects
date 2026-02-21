@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, List
+from datetime import datetime
 
-from sqlalchemy import func
+from sqlalchemy import DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from car_api.models import Base
@@ -16,12 +17,14 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
-    update_at: Mapped[str] = mapped_column(
-        onupdate=func.now(),
+    update_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         server_default=func.now(),
+        onupdate=func.now()
     )
-    created_at: Mapped[str] = mapped_column(
-        server_default=func.now(),
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now()
     )
 
     cars: Mapped[List['Car']] = relationship(
